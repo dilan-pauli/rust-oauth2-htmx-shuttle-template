@@ -1,0 +1,2 @@
+- https://www.shuttle.rs/blog/2023/08/30/using-oauth-with-axum
+- https://www.shuttle.rs/blog/2023/10/25/htmx-with-rust
