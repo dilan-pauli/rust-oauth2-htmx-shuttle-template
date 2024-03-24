@@ -34,7 +34,7 @@ pub fn init_router(db: PgPool) -> Router {
     let (tx, _rx) = channel::<models::TodoUpdate>(10);
     let state = AppState { db };
 
-    Router::new()
+    let mut router = Router::new()
         .route("/", get(todo_controller::home))
         .route("/stream", get(todo_controller::stream))
         .route("/styles.css", get(todo_controller::styles))
@@ -42,5 +42,11 @@ pub fn init_router(db: PgPool) -> Router {
         .route("/todos/:id", delete(todo_controller::delete_todo))
         .route("/todos/stream", get(todo_controller::handle_stream))
         .with_state(state)
-        .layer(Extension(tx))
+        .layer(Extension(tx));
+
+    if cfg!(debug_assertions) {
+        router = router.layer(tower_livereload::LiveReloadLayer::new());
+    }
+
+    router
 }

@@ -7,6 +7,7 @@ use axum::{
 use serde_json::json;
 use std::convert::Infallible;
 use std::time::Duration;
+use tokio::sync::broadcast::{channel, Sender, Receiver};
 use tokio_stream::wrappers::BroadcastStream;
 use tokio_stream::{Stream, StreamExt as _};
 
@@ -94,16 +95,17 @@ pub async fn delete_todo(
 }
 
 pub async fn handle_stream(
-    Extension(tx): Extension<TodosStream>,
+    Extension(tx): Extension<TodosStream>
 ) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
     let rx = tx.subscribe();
-
     let stream = BroadcastStream::new(rx);
 
+    // map the stream to axum Events which get sent through the SSE stream
     Sse::new(
         stream
             .map(|msg| {
                 let msg = msg.unwrap();
+                // wrap the message in HTML because htmx expects a HTML fragment response
                 let json = format!("<div>{}</div>", json!(msg));
                 Event::default().data(json)
             })
