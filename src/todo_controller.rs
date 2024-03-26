@@ -7,7 +7,6 @@ use axum::{
 use serde_json::json;
 use std::convert::Infallible;
 use std::time::Duration;
-use tokio::sync::broadcast::{channel, Sender, Receiver};
 use tokio_stream::wrappers::BroadcastStream;
 use tokio_stream::{Stream, StreamExt as _};
 
@@ -95,7 +94,7 @@ pub async fn delete_todo(
 }
 
 pub async fn handle_stream(
-    Extension(tx): Extension<TodosStream>
+    Extension(tx): Extension<TodosStream>,
 ) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
     let rx = tx.subscribe();
     let stream = BroadcastStream::new(rx);

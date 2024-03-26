@@ -5,6 +5,7 @@ use axum::{
 };
 
 use tokio::sync::broadcast::{channel, Sender};
+use tracing::info;
 
 mod errors;
 mod models;
@@ -44,9 +45,10 @@ pub fn init_router(db: PgPool) -> Router {
         .with_state(state)
         .layer(Extension(tx));
 
-    if cfg!(debug_assertions) {
-        router = router.layer(tower_livereload::LiveReloadLayer::new());
-    }
+    // Causes the front end to break if constantly adding and deleting... 
+    // if cfg!(debug_assertions) {
+    //     router = router.layer(tower_livereload::LiveReloadLayer::new());
+    // }
 
     router
 }
